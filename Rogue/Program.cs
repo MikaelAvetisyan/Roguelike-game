@@ -56,7 +56,7 @@ while (choose == true)
     Console.WriteLine("-- Assassin --");
     Console.WriteLine(" Weapon: Dubble Daggers (rare)");
     Console.WriteLine(" Armor: Medium (rare)"); //armor level 3
-    Console.WriteLine(" Special Ability Silent Kill (epic)");
+    Console.WriteLine(" Special Ability: Silent Kill (epic)");
     Console.WriteLine("    -- Instantly kills a target with low health");
     Console.WriteLine("    -- If the enemy survives, deals bonus critical damage");
     Console.ReadLine();
@@ -98,87 +98,78 @@ while (choose == true)
 
     Console.ReadLine();
 
+    Character vanguard = new Character("Vanguard", 120, 40, 4, "Shield Wall");
+    Character ranger = new Character("Ranger", 90, 55, 2, "Rapid Shot");
+    Character assassin = new Character("Assassin", 85, 65, 3, "Silent Kill");
+    Character warlock = new Character("Warlock", 80, 70, 1, "Curse Mark");
+    Character samurai = new Character("Samurai", 95, 60, 3, "Iaido Slash");
+    Character gunslinger = new Character("Gunslinger", 90, 50, 2, "Quick Draw");
+    Character bloodKnight = new Character("Blood Knight", 110, 55, 4, "Life Steal");
+    Character juggernaut = new Character("Juggernaut", 130, 45, 5, "Iron Body");
+
     Console.WriteLine("So what do you choose?");
-    string Class = Console.ReadLine().Trim().ToLower();
+    string chosenClass = Console.ReadLine().Trim().ToLower();
+    Character selectedCharacter = null;
 
-    if (Class == "vanguard")
+
+    if (chosenClass == "vanguard")
     {
-        Console.Clear();
-        Console.WriteLine("You choose Vanguard");
-        bool Vanguard = true;
+        selectedCharacter = vanguard;
+        break;
+    }
+    else if (chosenClass == "ranger")
+    {
+        selectedCharacter = ranger;
+        break;
+    }
+    else if (chosenClass == "assassin")
+    {
+        selectedCharacter = assassin;
+        break;
+    }
+    else if (chosenClass == "warlock")
+    {
+        selectedCharacter = warlock;
+        break;
+    }
+    else if (chosenClass == "samurai")
+    {
+        selectedCharacter = samurai;
+        break;
+    }
+    else if (chosenClass == "gunslinger")
+    {
+        selectedCharacter = gunslinger;
+        break;
+    }
+    else if (chosenClass == "blood knight")
+    {
+        selectedCharacter = bloodKnight;
+        break;
+    }
+    else if (chosenClass == "juggernaut")
+    {
+        selectedCharacter = juggernaut;
         break;
     }
 
-    else if (Class == "ranger")
+    if (selectedCharacter != null)
     {
         Console.Clear();
-        Console.WriteLine("You choose Ranger");
-        bool Ranger = true;
-        break;
-
+        Console.WriteLine($"You chose {selectedCharacter.Name}");
+        Console.WriteLine($"Health: {selectedCharacter.Health}");
+        Console.WriteLine($"Attack: {selectedCharacter.Attack}");
+        Console.WriteLine($"Defense: {selectedCharacter.Defense}");
+        Console.WriteLine($"Ability: {selectedCharacter.Ability}");
     }
-
-    else if (Class == "assassin")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Assassin");
-        bool Assassin = true;
-        break;
-
-    }
-
-    else if (Class == "warlock")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Warlock");
-        bool Warlock = true;
-        break;
-
-    }
-
-    else if (Class == "samurai")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Samurai");
-        bool Samurai = true;
-        break;
-
-    }
-
-    else if (Class == "gunslinger")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Gunslinger");
-        bool Gunslinger = true;
-        break;
-
-    }
-
-    else if (Class == "blood knight")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Blood Knight");
-        bool blood_knight = true;
-        break;
-
-    }
-
-    else if (Class == "juggernaut")
-    {
-        Console.Clear();
-        Console.WriteLine("You choose Juggernaut");
-        bool juggernaut = true;
-        break;
-
-    }
-
     else
     {
         Console.Clear();
-        Console.WriteLine("There is no such class");
+        Console.WriteLine("There is no such class.");
         Console.WriteLine("- Try again -");
         Console.ReadLine();
     }
 }
-Console.ReadLine();
 
+Console.WriteLine("So you venture out into the cave and and find a bunch of bugs sleeping");
+Console.ReadLine();
