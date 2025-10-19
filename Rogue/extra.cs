@@ -33,3 +33,68 @@ class Character
         Ability = ability;
     }
 }
+
+class Action
+{
+    public static void Text()
+    {
+        while (true)
+        {
+            Console.WriteLine("---- Choose Your action ----");
+            Console.WriteLine();
+
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("-| Attack |-");
+            Console.ResetColor();
+
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("-| Defend |-");
+            Console.ResetColor();
+
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("-| Item |-");
+            Console.ResetColor();
+
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("-| Special |-");
+            Console.ResetColor();
+
+
+            Console.WriteLine();
+            string answer = Console.ReadLine().Trim().ToLower();
+
+
+            if (answer == "attack")
+            {
+                // Add attack logic here
+                break;
+            }
+            else if (answer == "defend")
+            {
+                // Add defend logic here
+                break;
+            }
+            else if (answer == "item")
+            {
+                // Add item logic here
+                break;
+            }
+            else if (answer == "special")
+            {
+                // Add special logic here
+                break;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Invalid input. Try again.");
+                Console.WriteLine();
+            }
+            Console.ReadLine();
+        }
+    }
+}

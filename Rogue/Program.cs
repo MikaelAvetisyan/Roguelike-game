@@ -3,6 +3,8 @@ using System.Threading;
 
 //add slots for equipment
 //add more items
+//add shop
+//add combat and rooms
 
 Console.WriteLine("Helloing fellow rookie");
 Console.WriteLine("There is a cave entrence apon you, you shall slain every enemy in there");
@@ -170,6 +172,10 @@ while (choose == true)
         Console.ReadLine();
     }
 }
+Console.WriteLine();
+Console.WriteLine("You went into the cave");
+Console.WriteLine("You stumble apon 3 enemy skeletons, you take your stance");
+Console.WriteLine();
+Action.Text();
 
-Console.WriteLine("So you venture out into the cave and and find a bunch of bugs sleeping");
-Console.ReadLine();
+
