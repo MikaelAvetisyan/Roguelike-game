@@ -6,11 +6,11 @@ using System.Threading;
 //add shop
 //add combat and rooms
 
-Console.WriteLine("Helloing fellow rookie");
 Console.WriteLine("There is a cave entrence apon you, you shall slain every enemy in there");
+Console.WriteLine("Mission> slain every enemy");
 Console.WriteLine();
 Console.WriteLine("Press enter to continue");
-    Console.ReadLine();
+    Console.ReadLine(); 
 
 Loadingscreen.Hello();
     Console.ReadLine();
@@ -31,6 +31,8 @@ Console.ResetColor();
 
 Console.ReadLine();
 Console.Clear();
+
+Character selectedCharacter = null;
 
 bool choose = true;
 while (choose == true)
@@ -86,7 +88,7 @@ while (choose == true)
     Console.WriteLine();
     Console.WriteLine("-- Blood knight --");
     Console.WriteLine(" Weapon: Blood Katana (epic)");
-    Console.WriteLine(" Armor: Heavy (rare)");
+    Console.WriteLine(" Armor: Heavy (rare)"); // armor level 4
     Console.WriteLine(" Special Ability: Life Steal (epic)");
     Console.WriteLine("    -- Deals strong damage and heals 30% of the damage dealt");
     Console.ReadLine();
@@ -111,71 +113,39 @@ while (choose == true)
 
     Console.WriteLine("So what do you choose?");
     string chosenClass = Console.ReadLine().Trim().ToLower();
-    Character selectedCharacter = null;
 
-
-    if (chosenClass == "vanguard")
-    {
-        selectedCharacter = vanguard;
-        break;
-    }
-    else if (chosenClass == "ranger")
-    {
-        selectedCharacter = ranger;
-        break;
-    }
-    else if (chosenClass == "assassin")
-    {
-        selectedCharacter = assassin;
-        break;
-    }
-    else if (chosenClass == "warlock")
-    {
-        selectedCharacter = warlock;
-        break;
-    }
-    else if (chosenClass == "samurai")
-    {
-        selectedCharacter = samurai;
-        break;
-    }
-    else if (chosenClass == "gunslinger")
-    {
-        selectedCharacter = gunslinger;
-        break;
-    }
-    else if (chosenClass == "blood knight")
-    {
-        selectedCharacter = bloodKnight;
-        break;
-    }
-    else if (chosenClass == "juggernaut")
-    {
-        selectedCharacter = juggernaut;
-        break;
-    }
-
-    if (selectedCharacter != null)
-    {
-        Console.Clear();
-        Console.WriteLine($"You chose {selectedCharacter.Name}");
-        Console.WriteLine($"Health: {selectedCharacter.Health}");
-        Console.WriteLine($"Attack: {selectedCharacter.Attack}");
-        Console.WriteLine($"Defense: {selectedCharacter.Defense}");
-        Console.WriteLine($"Ability: {selectedCharacter.Ability}");
-    }
+    if (chosenClass == "vanguard") selectedCharacter = vanguard;
+    else if (chosenClass == "ranger") selectedCharacter = ranger;
+    else if (chosenClass == "assassin") selectedCharacter = assassin;
+    else if (chosenClass == "warlock") selectedCharacter = warlock;
+    else if (chosenClass == "samurai") selectedCharacter = samurai;
+    else if (chosenClass == "gunslinger") selectedCharacter = gunslinger;
+    else if (chosenClass == "blood knight") selectedCharacter = bloodKnight;
+    else if (chosenClass == "juggernaut") selectedCharacter = juggernaut;
     else
     {
         Console.Clear();
         Console.WriteLine("There is no such class.");
         Console.WriteLine("- Try again -");
         Console.ReadLine();
+        continue; 
     }
+
+    choose = false; 
 }
+
+Console.Clear();
+Console.WriteLine($"You chose {selectedCharacter.Name}");
+Console.WriteLine($"Health: {selectedCharacter.Health}");
+Console.WriteLine($"Attack: {selectedCharacter.Attack}");
+Console.WriteLine($"Defense: {selectedCharacter.Defense}");
+Console.WriteLine($"Ability: {selectedCharacter.Ability}");
+
 Console.WriteLine();
 Console.WriteLine("You went into the cave");
-Console.WriteLine("You stumble apon 3 enemy skeletons, you take your stance");
+Console.WriteLine("You stumble upon 2 enemy skeletons, you take your stance");
 Console.WriteLine();
-Action.Text();
+Action.Text(selectedCharacter);
+
 
 

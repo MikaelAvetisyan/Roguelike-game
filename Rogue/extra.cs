@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Security;
 using System.Threading;
 
 class Loadingscreen
@@ -36,8 +37,10 @@ class Character
 
 class Action
 {
-    public static void Text()
+    public static void Text(Character player)
     {
+        int Enemy_1 = 100;
+        int Enemy_2 = 100;
         while (true)
         {
             Console.WriteLine("---- Choose Your action ----");
@@ -70,12 +73,51 @@ class Action
 
             if (answer == "attack")
             {
-                // Add attack logic here
+                int damage = player.Attack;
+                while (true)
+                {
+                    Console.WriteLine("Which skeleton do you attack");
+                    Console.WriteLine("Skeleton 1 or Skeleton 2");
+                    string attack_answer = Console.ReadLine().Trim().ToLower();
+                    if (attack_answer == "skeleton 1")
+                    {
+                        Enemy_1 -= damage;
+                        Enemy_2 -= damage / 2;
+                        Console.WriteLine("You attacked Skeleton 1");
+                        Console.WriteLine($"You did {damage} Damage to Skeleton 1");
+                        Console.WriteLine("While you swung your sword you hit the other skeleton too");
+                        Console.ReadLine();
+                        Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
+                        Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
+                        break;
+                    }
+
+                    else if (attack_answer == "skeleton 2")
+                    {
+                        Enemy_1 -= damage / 2;
+                        Enemy_2 -= damage;
+                        Console.WriteLine("You attacked Skeleton 2");
+                        Console.WriteLine($"You did {damage} Damage to Skeleton ");
+                        Console.WriteLine("While you swung your sword you hit the other skeleton too");
+                        Console.ReadLine();
+                        Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
+                        Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
+                        break;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Invalid Answer!");
+                        Console.WriteLine("You got to write eather:");
+                        Console.WriteLine("Skeleton 1 or Skeleton 2");
+                    }
+                    Console.ReadLine();
+                }
                 break;
             }
             else if (answer == "defend")
             {
-                // Add defend logic here
+                
                 break;
             }
             else if (answer == "item")
