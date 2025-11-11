@@ -1,9 +1,19 @@
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.Dynamic;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Data;
 using System.Threading;
+
+static class Global
+{
+    public static bool C1 = true;
+    public static bool C2 = true;
+    public static bool C3 = true;
+    public static bool C4 = true;
+    public static bool C5 = true;
+    public static bool C6 = true;
+    public static bool C7 = true;
+
+    public static bool R1 = true;
+}
 
 class Loadingscreen
 {
@@ -27,36 +37,47 @@ class Character
     public int Attack;
     public int Defense;
     public string Ability;
+    public int Gold;
+    public int crit_chanse = 11;
+
+    public Character(string name, int health, int attack, int defense, string ability)
+    {
+        Name = name;
+        Health = health;
+        MaxHealth = health;
+        Attack = attack;
+        Defense = defense;
+        Ability = ability;
+    }
 
     public void Heal(int amount)
     {
         Health += amount;
         if (Health > MaxHealth)
             Health = MaxHealth;
+
     }
 
     public void TakeDamage(int amount)
     {
         Health -= amount;
         if (Health < 0)
+        {
             Health = 0;
-    }
+        }
 
-    public Character(string name, int health, int attack, int defense, string ability) 
-    {
-        Name = name;
-        Health = health;
-        Attack = attack;
-        Defense = defense;
-        Ability = ability;
+        if (Health == 0)
+        {
+            Environment.Exit(0);
+        }               
+
     }
 }
-
 class Items
 {
-    public static void commen(Character player)
+    public static void Commen(Character player)
     {
-        int common_rnd = new Random().Next(1, 7);
+        int common_rnd = new Random().Next(1, 8);
 
         if (common_rnd == 1)
         {
@@ -64,72 +85,90 @@ class Items
             Console.WriteLine("+1 armor");
             Console.WriteLine("----------");
             Console.WriteLine("Adds extra armor to make you lose less hp");
-            player.Defense += 1;
+            if (!Global.C1)
+            {
+                player.Defense += 1;
+                Global.C1 = true;
+            }
         }
-
         else if (common_rnd == 2)
         {
             Console.WriteLine("Minor potion (Item)");
             Console.WriteLine("+15 HP");
             Console.WriteLine("----------");
-            Console.WriteLine("Restors 15 hp instanly");
-            player.Heal(15);
+            Console.WriteLine("Restores 15 hp instantly");
+            if (!Global.C2)
+            {
+                player.Heal(15);
+                Global.C2 = true;
+            }
         }
-
         else if (common_rnd == 3)
         {
             Console.WriteLine("Traveler's Coin Purse (Passive)");
-            Console.WriteLine("+10% gold kill");
+            Console.WriteLine("+10% gold per kill");
             Console.WriteLine("----------");
             Console.WriteLine("10% more gold dropped by enemies");
-            // add drop rate
+            Global.C3 = true;
         }
-
         else if (common_rnd == 4)
         {
             Console.WriteLine("Wooden Amulet (Passive)");
-            Console.WriteLine("+10 HP Perma");
+            Console.WriteLine("+10 HP Permanent");
             Console.WriteLine("----------");
-            Console.WriteLine("Adds +10 HP to the Max Health amount");
-            player.MaxHealth += 10;
+            Console.WriteLine("Adds +10 HP to Max Health");
+            if (!Global.C4)
+            {
+                player.MaxHealth += 10;
+                Global.C4 = true;
+            }
         }
-
         else if (common_rnd == 5)
         {
             Console.WriteLine("Lucky Pebble (Passive)");
-            Console.WriteLine("+5% crit chanse");
+            Console.WriteLine("+10% crit chance");
             Console.WriteLine("----------");
-            Console.WriteLine("Add's an extra 5 procent chanse of you hitting a critical hit");
-            // add crit stat
+            Console.WriteLine("Adds an extra 10% chance of hitting a critical hit");
+            if (!Global.C5)
+            {
+                player.crit_chanse -= 1;
+                Global.C5 = true;
+            }
         }
-
         else if (common_rnd == 6)
         {
             Console.WriteLine("Simple Bandage (Item)");
             Console.WriteLine("Heal 10 HP");
             Console.WriteLine("----------");
             Console.WriteLine("You can restore 10 Health");
-            player.Heal(10);
+            if (!Global.C6)
+            {
+                player.Heal(10);
+                Global.C6 = true;
+            }
         }
-
         else if (common_rnd == 7)
         {
-            Console.WriteLine("Sharpend Knife (Passive)");
+            Console.WriteLine("Sharpened Knife (Passive)");
             Console.WriteLine("+10 Damage");
             Console.WriteLine("----------");
-            Console.WriteLine("Deal an extra +10 Base damage");
-            player.Attack += 10;
+            Console.WriteLine("Deal an extra +10 base damage");
+            if (!Global.C7)
+            {
+                player.Attack += 10;
+                Global.C7 = true;
+            }
         }
     }
 
     public static void rare(Character player)
     {
-        int rare_rnd = new Random().Next(1, 5);
+        int rare_rnd = new Random().Next(1, 6);
 
         if (rare_rnd == 1)
         {
             Console.WriteLine("Vampiric Blade (Item)");
-            Console.WriteLine("5% Life steal");
+            Console.WriteLine("Life steal");
             Console.WriteLine("----------");
             Console.WriteLine("Heal 5% of the damage you deal");
             // add
@@ -138,7 +177,7 @@ class Items
         else if (rare_rnd == 2)
         {
             Console.WriteLine("Spiked Armor (Passive)");
-            Console.WriteLine("Reflect 10% Damage");
+            Console.WriteLine("Reflect Damage");
             Console.WriteLine("----------");
             Console.WriteLine("Reflect 10% damage taken");
             // add
@@ -156,7 +195,7 @@ class Items
         else if (rare_rnd == 4)
         {
             Console.WriteLine("Mana Pendant (Passive)");
-            Console.WriteLine("Reduce Ability cooldown by 1");
+            Console.WriteLine("Reduce Ability cooldown");
             Console.WriteLine("----------");
             Console.WriteLine("-1 Round cooldown on abilities");
             // add
@@ -165,51 +204,134 @@ class Items
         else if (rare_rnd == 5)
         {
             Console.WriteLine("Bag of Fortune (Passive)");
-            Console.WriteLine("15% for dubble gold");
+            Console.WriteLine("15% for more gold");
             Console.WriteLine("----------");
             Console.WriteLine("15% chance enemies drop double gold");
             // add
         }
     }
+
+    public static void epic()
+    {
+        int epic_rnd = new Random().Next(1 ,5);
+
+        if (epic_rnd == 1)
+        {
+            Console.WriteLine("Thunder Blade (Item)");
+            Console.WriteLine("+10% AOE-damage");
+            Console.WriteLine("----------");
+            Console.WriteLine("Attack's deal +10% splash damage to all nearby enemies");
+            //add
+        }
+
+        else if (epic_rnd == 2)
+        {
+            Console.WriteLine("Phoenix Heart (Passive)");
+            Console.WriteLine("Revive with half of your HP");
+            Console.WriteLine("----------");
+            Console.WriteLine("Revive once per run with 50% HP");
+            //add
+        }
+
+        else if (epic_rnd == 3)
+        {
+            Console.WriteLine("Alchemist's Coin (Passive)");
+            Console.WriteLine("Gain gold, take more damage");
+            Console.WriteLine("----------");
+            Console.WriteLine("Gain +5 gold every 10 rounds, but take +10% more damage");
+            //add
+        }
+
+        else if (epic_rnd == 4)
+        {
+            Console.WriteLine("Blood Pact (Passive)");
+            Console.WriteLine("More damage, less HP");
+            Console.WriteLine("----------");
+            Console.WriteLine("+25% Damage, -15% Max HP");
+            //add
+        }
+    }
+
+    public static void legendry()
+    {
+        int legendry_rnd = new Random().Next(1, 6);
+
+        if (legendry_rnd == 1)
+        {
+            Console.WriteLine("Dragon Fang Sword (Item)");
+            Console.WriteLine("More damage, More gold");
+            Console.WriteLine("----------");
+            Console.WriteLine("+40% Damage, Enemies drop +20% more gold");
+            //add
+        }
+
+        else if (legendry_rnd == 2)
+        {
+            Console.WriteLine("Crown Of The Damned (Passive)");
+            Console.WriteLine("More gold per kill, less Max HP");
+            Console.WriteLine("----------");
+            Console.WriteLine("+2% gold per kill, but Max HP is reduced by 20%");
+            //add
+        }
+
+        else if (legendry_rnd == 3)
+        {
+            Console.WriteLine("Echo Gloves (Power-Up)");
+            Console.WriteLine("Repeat Attack");
+            Console.WriteLine("----------");
+            Console.WriteLine("Every 3rd Attack repeats automatically");
+            //add
+        }
+
+        else if (legendry_rnd == 4)
+        {
+            Console.WriteLine("Golden Furnace (Item)");
+            Console.WriteLine("Sacrifice HP for Gold");
+            Console.WriteLine("----------");
+            Console.WriteLine("Sacrifice 50 HP for 100 Gold");
+            //add
+        }
+
+        else if (legendry_rnd == 5)
+        {
+            Console.WriteLine("Soal Contract (Power-Up)");
+            Console.WriteLine("Trade Gold for Damage");
+            Console.WriteLine("----------");
+            Console.WriteLine("Trade 50% of current gold for +50% damage for 2 rounds");
+            //add
+        }
+    }
 }
+
 
 class Black
 {
     public static void Market()
     {
-
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Market");
         Console.ResetColor();
         Console.ReadLine();
 
-        Console.WriteLine("Welcome to the ");
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("Market");
-        Console.ResetColor();
-        Console.WriteLine("Here you can buy goods");
-        Console.WriteLine("like items that can aid you in battle");
+        Console.WriteLine("Welcome to the Market");
+        Console.WriteLine("Here you can buy goods like items that can aid you in battle");
         Console.WriteLine();
         Console.WriteLine("Or upgrades like:");
         Console.WriteLine("Weapon upgrades");
         Console.WriteLine("Health upgrades");
         Console.WriteLine("And so on");
-
-        // Item method here
     }
 }
 
-class Action (Character player)
+class Action
 {
-    public int Max_Health => player.Health;
     public static int round = 1;
     public static int Enemy_1 = 100;
     public static int Enemy_2 = 100;
-    public static int Enemy_damage = 10;
+    public static int Enemy_damage = 11;
 
     public static void Text(Character player)
     {
-
         while (true)
         {
             Console.WriteLine("---- Choose Your Action ----");
@@ -246,76 +368,86 @@ class Action (Character player)
 
                     if (attack_answer == "skeleton 1")
                     {
-                        Enemy_1 -= damage;
+                        int crit = new Random().Next(1, player.crit_chanse);
+                        if (crit == 1)
+                        {
+                            Console.WriteLine("! Crit !");
+                            Enemy_1 -= damage * 3;
+                        }
+                        else
+                        {
+                            Enemy_1 -= damage;
+                        }
                         Enemy_2 -= damage / 2;
-                        Console.WriteLine("You attacked Skeleton 1");
-                        Console.WriteLine($"You did {damage} damage to Skeleton 1");
-                        Console.WriteLine("While you swung your sword you hit the other skeleton too");
-                        Console.ReadLine();
+                        Console.WriteLine($"You attacked Skeleton 1 for {damage} damage.");
                         Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
                         Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
                         break;
                     }
                     else if (attack_answer == "skeleton 2")
                     {
+                        int crit = new Random().Next(1, player.crit_chanse);
+                        if (crit == 1)
+                        {
+                            Console.WriteLine("! Crit !");
+                            Enemy_2 -= damage * 3;
+                        }
+                        else
+                        {
+                            Enemy_2 -= damage;
+                        }
                         Enemy_1 -= damage / 2;
-                        Enemy_2 -= damage;
-                        Console.WriteLine("You attacked Skeleton 2");
-                        Console.WriteLine($"You did {damage} damage to Skeleton 2");
-                        Console.WriteLine("While you swung your sword you hit the other skeleton too");
-                        Console.ReadLine();
+                        Console.WriteLine($"You attacked Skeleton 2 for {damage} damage.");
                         Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
                         Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
                         break;
                     }
                     else
                     {
-                        Console.WriteLine("Invalid Answer!");
-                        Console.WriteLine("You’ve got to write either:");
-                        Console.WriteLine("Skeleton 1 or Skeleton 2");
+                        Console.WriteLine("Invalid Answer! Write 'Skeleton 1' or 'Skeleton 2'");
                     }
-                    Console.ReadLine();
                 }
                 break;
             }
             else if (answer == "defend")
             {
                 Console.WriteLine("You activated your Defense stance");
-                Console.WriteLine("Defense stance = Opponents deal half damage for 2 rounds");
-                bool defense_stance = true;
+                Console.WriteLine("Opponents deal half damage for 2 rounds");
+                bool Extra_def = true;
                 break;
             }
             else if (answer == "item")
             {
-                // Add item logic here
+                Items.Commen(player);
                 break;
             }
             else if (answer == "special")
             {
-                // Add special logic here
+                Console.WriteLine("Special ability not implemented yet");
                 break;
             }
             else
             {
                 Console.Clear();
                 Console.WriteLine("Invalid input. Try again.");
-                Console.WriteLine();
             }
-            Console.ReadLine();
         }
 
         Console.WriteLine("!! The skeletons strike back !!");
         Console.WriteLine($"The skeletons did -{Enemy_damage}");
-        player.Health -= Enemy_damage;
+        if ()
+        player.TakeDamage(Enemy_damage);
         Console.WriteLine($"Your HP = {player.Health}");
-        Console.ReadLine();
+
+        if (Enemy_1 <= 0 || Enemy_2 <= 0)
+        {
+            player.Gold += 10;
+        }
 
         if (Enemy_1 <= 0 && Enemy_2 <= 0)
         {
             Console.WriteLine("!!! Round cleared !!!");
             Console.WriteLine("Moving on to the next room");
-            Console.ReadLine();
-            Console.WriteLine("To the ");
             Black.Market();
             round++;
         }

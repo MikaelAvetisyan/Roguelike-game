@@ -50,7 +50,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Heavy (rare)"); // armor level 4
     Console.WriteLine(" Special Ability: Shield Wall (rare)");
     Console.WriteLine("    -- Reduce incoming damage by 50% for 2 turns");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Ranger --");
@@ -58,7 +57,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Light (Common)"); // armor level 2
     Console.WriteLine(" Special Ability: Rapid Shot (rare)");
     Console.WriteLine("    -- Shoots 3 arrows at once");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Assassin --");
@@ -67,7 +65,6 @@ while (choose == true)
     Console.WriteLine(" Special Ability: Silent Kill (epic)");
     Console.WriteLine("    -- Instantly kills a target with low health");
     Console.WriteLine("    -- If the enemy survives, deals bonus critical damage");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Warlock --");
@@ -75,7 +72,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Light (common)"); // armor level 1
     Console.WriteLine(" Special Ability: Curse Mark");
     Console.WriteLine("    -- Marks an enemy. The enemy takes extra damage from all sources for 3 turns");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Samurai --");
@@ -83,7 +79,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Medium (rare)"); // armor level 3
     Console.WriteLine(" Special Ability: Iaido Slash");
     Console.WriteLine("    -- Deals heavy damage and guarantees a counterattack next turn");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Gunslinger --");
@@ -91,7 +86,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Light"); // armor level 2
     Console.WriteLine(" Special Ability: Quick Draw");
     Console.WriteLine("    -- Instantly shoots all enemies once");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Blood Knight --");
@@ -99,7 +93,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Heavy (rare)"); // armor level 4
     Console.WriteLine(" Special Ability: Life Steal (epic)");
     Console.WriteLine("    -- Deals strong damage and heals 30% of the damage dealt");
-    Console.ReadLine();
     Console.WriteLine();
 
     Console.WriteLine("-- Juggernaut --");
@@ -107,7 +100,6 @@ while (choose == true)
     Console.WriteLine(" Armor: Heavy (epic)");
     Console.WriteLine(" Special Ability: Iron Body");
     Console.WriteLine("    -- Immune from negative effects for 2 turns");
-    Console.ReadLine();
     Console.WriteLine();
 
     Character vanguard = new Character("Vanguard", 120, 40, 4, "Shield Wall");
