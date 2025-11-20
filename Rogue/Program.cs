@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Threading;
 
-// add slots for equipment
-// add more items
-// add shop
-// add combat and rooms
-// add gold drop rate
-
 Console.WriteLine("There is a cave entrance upon you, you shall slay every enemy in there");
 Console.WriteLine("Mission > Slay every enemy");
 Console.WriteLine();
@@ -14,22 +8,6 @@ Console.WriteLine("Press enter to continue");
 Console.ReadLine();
 
 Loadingscreen.Hello();
-Console.ReadLine();
-
-Console.WriteLine("A brief explanation of how the game works");
-
-Console.ForegroundColor = ConsoleColor.Red;
-Console.WriteLine(" 1. It's an infinity loop game");
-Console.ResetColor();
-
-Console.ForegroundColor = ConsoleColor.Blue;
-Console.WriteLine(" 2. You gather XP, loot, and power-ups to survive the difficult waves");
-Console.ResetColor();
-
-Console.ForegroundColor = ConsoleColor.Green;
-Console.WriteLine(" 3. Use the coins you get by defeating a wave of enemies to buy yourself some fresh and cool equipment");
-Console.ResetColor();
-
 Console.ReadLine();
 Console.Clear();
 

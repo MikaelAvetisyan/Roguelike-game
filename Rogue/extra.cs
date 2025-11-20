@@ -38,7 +38,7 @@ class Character
     public int Defense;
     public string Ability;
     public int Gold;
-    public int crit_chanse = 11;
+    public int crit_chanse = 21;
 
     public Character(string name, int health, int attack, int defense, string ability)
     {
@@ -69,10 +69,34 @@ class Character
         if (Health == 0)
         {
             Environment.Exit(0);
-        }               
+        }
 
     }
 }
+
+class Item
+{
+    public int Weight;
+    public virtual void Use(Character player)
+    {
+
+    }
+}
+
+class OldShield : Item
+{
+    public override void Use(Character player)
+    {
+        Console.WriteLine("Old Shield (Passive)");
+        Console.WriteLine("+1 armor");
+        Console.WriteLine("----------");
+        Console.WriteLine("Adds extra armor to make you lose less hp");
+
+        player.Defense += 1;
+
+    }
+}
+
 class Items
 {
     public static void Commen(Character player)
@@ -213,7 +237,7 @@ class Items
 
     public static void epic()
     {
-        int epic_rnd = new Random().Next(1 ,5);
+        int epic_rnd = new Random().Next(1, 5);
 
         if (epic_rnd == 1)
         {
@@ -303,7 +327,6 @@ class Items
     }
 }
 
-
 class Black
 {
     public static void Market()
@@ -326,9 +349,20 @@ class Black
 class Action
 {
     public static int round = 1;
+    public static int round_enemy_mult = 1;
     public static int Enemy_1 = 100;
     public static int Enemy_2 = 100;
-    public static int Enemy_damage = 11;
+    public static int Enemy_damage = 10;
+    public static bool extra_def = false;
+    public static int extra_def_round = 0;
+    public static float GoldDropMultiplier = 1.0f; //items that increase % gold
+    public static int ExtraGoldPerKill = 0; //extra gold per kill
+    private const int BaseGoldPerKill = 10; //base gold per kill
+    private const float GoldScalingPerRound = 0.5f; //additional gold per round
+    private const float GoldScalingCap = 35f; //cap for scaling
+    public static int Special_charge = 0;
+    public static bool Specail_isCharged = false;
+
 
     public static void Text(Character player)
     {
@@ -345,15 +379,15 @@ class Action
             Console.WriteLine("-| Defend |-");
             Console.ResetColor();
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("-| Item |-");
-            Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("-| Special |-");
+            Console.WriteLine($"Charge: {Special_charge}");
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine("-| Run |-");
             Console.ResetColor();
             Console.WriteLine();
-
             string answer = Console.ReadLine().Trim().ToLower();
 
             if (answer == "attack")
@@ -366,37 +400,44 @@ class Action
                     Console.WriteLine("Skeleton 1 or Skeleton 2");
                     string attack_answer = Console.ReadLine().Trim().ToLower();
 
-                    if (attack_answer == "skeleton 1")
+                    if (attack_answer == "skeleton 1" || attack_answer == "1")
                     {
                         int crit = new Random().Next(1, player.crit_chanse);
-                        if (crit == 1)
-                        {
-                            Console.WriteLine("! Crit !");
-                            Enemy_1 -= damage * 3;
-                        }
-                        else
-                        {
-                            Enemy_1 -= damage;
-                        }
+                            if (crit == 1)
+                                {
+                                    Console.WriteLine("! Crit !");
+                                    Enemy_1 -= damage * 3;
+                                }
+                            else
+                                {
+                                    Enemy_1 -= damage;
+                                }
+
                         Enemy_2 -= damage / 2;
+                        damage = Special_charge;
+
                         Console.WriteLine($"You attacked Skeleton 1 for {damage} damage.");
                         Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
                         Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
                         break;
                     }
-                    else if (attack_answer == "skeleton 2")
+                    
+                    else if (attack_answer == "skeleton 2" || attack_answer == "2")
                     {
                         int crit = new Random().Next(1, player.crit_chanse);
-                        if (crit == 1)
-                        {
-                            Console.WriteLine("! Crit !");
-                            Enemy_2 -= damage * 3;
-                        }
-                        else
-                        {
-                            Enemy_2 -= damage;
-                        }
+                            if (crit == 1)
+                                {
+                                    Console.WriteLine("! Crit !");
+                                    Enemy_2 -= damage * 3;
+                                }
+                            else
+                                {
+                                    Enemy_2 -= damage;
+                                }
+
                         Enemy_1 -= damage / 2;
+                        damage = Special_charge;
+
                         Console.WriteLine($"You attacked Skeleton 2 for {damage} damage.");
                         Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
                         Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
@@ -413,18 +454,50 @@ class Action
             {
                 Console.WriteLine("You activated your Defense stance");
                 Console.WriteLine("Opponents deal half damage for 2 rounds");
-                bool Extra_def = true;
-                break;
-            }
-            else if (answer == "item")
-            {
-                Items.Commen(player);
+                extra_def = true;
                 break;
             }
             else if (answer == "special")
             {
-                Console.WriteLine("Special ability not implemented yet");
-                break;
+                if (Special_charge < 100)
+                Special_charge = 100;
+
+                if (Special_charge == 100)
+                    Specail_isCharged = true;
+
+                else
+                {
+                    Console.WriteLine("You cant use your Special");
+                    Console.WriteLine("Its not fully charged");
+                    Console.WriteLine($"Special charge = {Special_charge}");
+                    break;
+                }
+
+                if(Specail_isCharged = true)
+                {
+                    Console.WriteLine("Your Special is fully charged");
+                    Console.WriteLine("Do you wish to do your Special");
+                    Console.WriteLine("Yes or No");
+                    string answer_special = Console.ReadLine().Trim().ToLower();
+
+                    if (answer_special == "yes" || answer_special == "y")
+                    {
+                        //special
+                    }
+
+                    else if (answer_special == "no" || answer_special == "n")
+                    {
+                        Console.WriteLine("Then your Special charge will be saved");
+                        break;
+                    }
+                }
+            }
+
+            else if (answer == "run")
+            {
+                Console.WriteLine("You ran out of the cave, you coward");
+                Console.ReadLine();
+                Environment.Exit(0);
             }
             else
             {
@@ -435,21 +508,58 @@ class Action
 
         Console.WriteLine("!! The skeletons strike back !!");
         Console.WriteLine($"The skeletons did -{Enemy_damage}");
-        if ()
-        player.TakeDamage(Enemy_damage);
+        if (extra_def == false)
+            player.TakeDamage(Enemy_damage * round_enemy_mult);
+
+        else if (extra_def == true)
+        {
+            extra_def_round++;
+            player.TakeDamage(Enemy_damage * round_enemy_mult / 2);
+
+            if (extra_def_round == 2)
+            {
+                extra_def_round = 0;
+                extra_def = false;
+            }
+        }
         Console.WriteLine($"Your HP = {player.Health}");
 
         if (Enemy_1 <= 0 || Enemy_2 <= 0)
         {
-            player.Gold += 10;
+            float scalingGold = GoldScalingPerRound * (round - 1); // this is made by chat gbt
+            if (scalingGold > GoldScalingCap) // this is made by chat gbt
+                scalingGold = GoldScalingCap; // this is made by chat gbt
+
+            float goldPreModifier = BaseGoldPerKill + scalingGold + ExtraGoldPerKill; // this is made by chat gbt
+
+            int goldEarned = (int)Math.Floor(goldPreModifier * GoldDropMultiplier); // this is made by chat gbt
+
+            player.Gold += goldEarned;
+
+            Console.WriteLine($"Enemies defeated! You earned {goldEarned} gold. Total gold: {player.Gold}");
         }
 
         if (Enemy_1 <= 0 && Enemy_2 <= 0)
         {
             Console.WriteLine("!!! Round cleared !!!");
             Console.WriteLine("Moving on to the next room");
-            Black.Market();
             round++;
+            Black.Market();
         }
+
+        if (Enemy_damage < 10)
+            Enemy_damage = 10;
+
+        float scale = 1f + (round - 1) * 0.15f;
+        if (scale > 4f) scale = 4f;
+
+        Enemy_damage = (int)(Enemy_damage * scale);
     }
 }
+
+// Fix the Action method 
+// add charging special with actions
+// Add enemy scaling
+// Bonus drops after both enemys die
+// Fix bugs that makes the code buggy
+// sort / fix / UI changes
