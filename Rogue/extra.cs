@@ -13,6 +13,22 @@ static class Global
     public static bool C7 = true;
 
     public static bool R1 = true;
+    public static bool R2 = true;
+    public static bool R3 = true;
+    public static bool R4 = true;
+    public static bool R5 = true;
+
+    public static bool E1 = true;
+    public static bool E2 = true;
+    public static bool E3 = true;
+    public static bool E4 = true;
+
+    public static bool L1 = true;
+    public static bool L2 = true;
+    public static bool L3 = true;
+    public static bool L4 = true;
+    public static bool L5 = true;
+
 }
 
 class Loadingscreen
@@ -39,6 +55,8 @@ class Character
     public string Ability;
     public int Gold;
     public int crit_chanse = 21;
+    static bool NoHit = false;
+
 
     public Character(string name, int health, int attack, int defense, string ability)
     {
@@ -58,9 +76,9 @@ class Character
 
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int enemy_damage)
     {
-        Health -= amount;
+        Health -= enemy_damage;
         if (Health < 0)
         {
             Health = 0;
@@ -70,29 +88,6 @@ class Character
         {
             Environment.Exit(0);
         }
-
-    }
-}
-
-class Item
-{
-    public int Weight;
-    public virtual void Use(Character player)
-    {
-
-    }
-}
-
-class OldShield : Item
-{
-    public override void Use(Character player)
-    {
-        Console.WriteLine("Old Shield (Passive)");
-        Console.WriteLine("+1 armor");
-        Console.WriteLine("----------");
-        Console.WriteLine("Adds extra armor to make you lose less hp");
-
-        player.Defense += 1;
 
     }
 }
@@ -133,7 +128,11 @@ class Items
             Console.WriteLine("+10% gold per kill");
             Console.WriteLine("----------");
             Console.WriteLine("10% more gold dropped by enemies");
-            Global.C3 = true;
+            if (!Global.C3)
+            {   
+                Action.GoldDropMultiplier += 0.1f;
+                Global.C3 = true;
+            }
         }
         else if (common_rnd == 4)
         {
@@ -185,17 +184,18 @@ class Items
         }
     }
 
-    public static void rare(Character player)
+    public static int Rare(Character player, int enemy_damage, int dodge, int reflectDamage, bool NoHit)
     {
         int rare_rnd = new Random().Next(1, 6);
 
         if (rare_rnd == 1)
         {
-            Console.WriteLine("Vampiric Blade (Item)");
+            Console.WriteLine("Vampiric Blade (Passive)");
             Console.WriteLine("Life steal");
             Console.WriteLine("----------");
-            Console.WriteLine("Heal 5% of the damage you deal");
-            // add
+            Console.WriteLine("Heal 10% of the damage you deal");
+            if (!Global.R1)
+                player.Heal((int)(player.Attack * 0.1));
         }
 
         else if (rare_rnd == 2)
@@ -204,7 +204,11 @@ class Items
             Console.WriteLine("Reflect Damage");
             Console.WriteLine("----------");
             Console.WriteLine("Reflect 10% damage taken");
-            // add
+            if (!Global.R2)
+            {
+                reflectDamage = (int)(enemy_damage * 0.1f);
+                return reflectDamage;
+            }
         }
 
         else if (rare_rnd == 3)
@@ -213,7 +217,15 @@ class Items
             Console.WriteLine("10% to avoid attack");
             Console.WriteLine("----------");
             Console.WriteLine("10% chance to completely avoid an attack");
-            // add
+            if (!Global.R3)
+            {
+                dodge = new Random().Next(1,11);
+                if (dodge == 1)
+                {
+                    NoHit = true;
+                } 
+            }
+
         }
 
         else if (rare_rnd == 4)
@@ -350,9 +362,10 @@ class Action
 {
     public static int round = 1;
     public static int round_enemy_mult = 1;
+    public static int reflectDamage;
+    public static int dodge;
     public static int Enemy_1 = 100;
     public static int Enemy_2 = 100;
-    public static int Enemy_damage = 10;
     public static bool extra_def = false;
     public static int extra_def_round = 0;
     public static float GoldDropMultiplier = 1.0f; //items that increase % gold
@@ -362,9 +375,10 @@ class Action
     private const float GoldScalingCap = 35f; //cap for scaling
     public static int Special_charge = 0;
     public static bool Specail_isCharged = false;
+    public static int Enemy_damage = 10;
 
 
-    public static void Text(Character player)
+    public static void Text(Character player, bool Nohit)
     {
         while (true)
         {
@@ -509,12 +523,12 @@ class Action
         Console.WriteLine("!! The skeletons strike back !!");
         Console.WriteLine($"The skeletons did -{Enemy_damage}");
         if (extra_def == false)
-            player.TakeDamage(Enemy_damage * round_enemy_mult);
+            player.TakeDamage((int)(Enemy_damage * round_enemy_mult * (player.Defense / 10 + 0.4)));
 
         else if (extra_def == true)
         {
             extra_def_round++;
-            player.TakeDamage(Enemy_damage * round_enemy_mult / 2);
+            player.TakeDamage((int)(Enemy_damage * round_enemy_mult / 2 * (player.Defense / 10 + 0.4)));
 
             if (extra_def_round == 2)
             {
@@ -522,17 +536,22 @@ class Action
                 extra_def = false;
             }
         }
+
+        else if (Nohit = true)
+        {
+            Enemy_damage = 0;
+        }
         Console.WriteLine($"Your HP = {player.Health}");
 
         if (Enemy_1 <= 0 || Enemy_2 <= 0)
         {
-            float scalingGold = GoldScalingPerRound * (round - 1); // this is made by chat gbt
-            if (scalingGold > GoldScalingCap) // this is made by chat gbt
-                scalingGold = GoldScalingCap; // this is made by chat gbt
+            float scalingGold = GoldScalingPerRound * (round - 1); 
+            if (scalingGold > GoldScalingCap) 
+                scalingGold = GoldScalingCap; 
 
-            float goldPreModifier = BaseGoldPerKill + scalingGold + ExtraGoldPerKill; // this is made by chat gbt
+            float goldPreModifier = BaseGoldPerKill + scalingGold + ExtraGoldPerKill; 
 
-            int goldEarned = (int)Math.Floor(goldPreModifier * GoldDropMultiplier); // this is made by chat gbt
+            int goldEarned = (int)Math.Floor(goldPreModifier * GoldDropMultiplier); 
 
             player.Gold += goldEarned;
 
@@ -558,8 +577,6 @@ class Action
 }
 
 // Fix the Action method 
-// add charging special with actions
-// Add enemy scaling
-// Bonus drops after both enemys die
 // Fix bugs that makes the code buggy
 // sort / fix / UI changes
+    
