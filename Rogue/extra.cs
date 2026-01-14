@@ -16,12 +16,10 @@ static class Global
     public static bool R2 = true;
     public static bool R3 = true;
     public static bool R4 = true;
-    public static bool R5 = true;
 
     public static bool E1 = true;
     public static bool E2 = true;
     public static bool E3 = true;
-    public static bool E4 = true;
 
     public static bool L1 = true;
     public static bool L2 = true;
@@ -52,20 +50,22 @@ class Character
     public int MaxHealth;
     public int Attack;
     public int Defense;
-    public string Ability;
     public int Gold;
     public int crit_chanse = 21;
-    static bool NoHit = false;
+    public static bool HasRevive = false;
+    public static bool ReviveUsed = false;
+    public static bool HasBloodPact = false;
+    public static int AttackCounter = 0;
+    public static bool HasEchoGloves = false;
 
 
-    public Character(string name, int health, int attack, int defense, string ability)
+    public Character(string name, int health, int attack, int defense)
     {
         Name = name;
         Health = health;
         MaxHealth = health;
         Attack = attack;
         Defense = defense;
-        Ability = ability;
     }
 
     public void Heal(int amount)
@@ -84,11 +84,25 @@ class Character
             Health = 0;
         }
 
-        if (Health == 0)
+        if (Health <= 0)
         {
-            Environment.Exit(0);
+            TryRevive();
         }
 
+        void TryRevive()
+        {
+            if (HasRevive && !ReviveUsed)
+            {
+                ReviveUsed = true;
+                Health = MaxHealth / 2;
+                Console.WriteLine("Phoenix Heart activated");
+            }
+            else
+            {
+                Console.WriteLine("You died");
+                Environment.Exit(0);
+            }
+        }
     }
 }
 
@@ -219,76 +233,70 @@ class Items
             Console.WriteLine("10% chance to completely avoid an attack");
             if (!Global.R3)
             {
-                dodge = new Random().Next(1,11);
-                if (dodge == 1)
-                {
-                    NoHit = true;
-                } 
-            }
+                int roll = new Random().Next(1, 11);
 
+                if (roll == 1)
+                {
+                    Action.DodgeNextHit = true;
+                    Console.WriteLine("You feel light on your feet");
+                }
+
+                Global.R3 = true;
+            }
         }
 
         else if (rare_rnd == 4)
-        {
-            Console.WriteLine("Mana Pendant (Passive)");
-            Console.WriteLine("Reduce Ability cooldown");
-            Console.WriteLine("----------");
-            Console.WriteLine("-1 Round cooldown on abilities");
-            // add
-        }
-
-        else if (rare_rnd == 5)
         {
             Console.WriteLine("Bag of Fortune (Passive)");
             Console.WriteLine("15% for more gold");
             Console.WriteLine("----------");
             Console.WriteLine("15% chance enemies drop double gold");
-            // add
+            if (!Global.R4)
+                Action.GoldDropMultiplier += 0.15f;
         }
+
+        return 0;
     }
 
-    public static void epic()
+    public static void epic(Character character)
     {
-        int epic_rnd = new Random().Next(1, 5);
+        int epic_rnd = new Random().Next(1, 3);
 
         if (epic_rnd == 1)
-        {
-            Console.WriteLine("Thunder Blade (Item)");
-            Console.WriteLine("+10% AOE-damage");
-            Console.WriteLine("----------");
-            Console.WriteLine("Attack's deal +10% splash damage to all nearby enemies");
-            //add
-        }
-
-        else if (epic_rnd == 2)
         {
             Console.WriteLine("Phoenix Heart (Passive)");
             Console.WriteLine("Revive with half of your HP");
             Console.WriteLine("----------");
             Console.WriteLine("Revive once per run with 50% HP");
-            //add
+            if (!Global.E1)
+                {
+                    Character.HasRevive = true;
+                    Global.E1 = true;
+                }   
         }
 
-        else if (epic_rnd == 3)
-        {
-            Console.WriteLine("Alchemist's Coin (Passive)");
-            Console.WriteLine("Gain gold, take more damage");
-            Console.WriteLine("----------");
-            Console.WriteLine("Gain +5 gold every 10 rounds, but take +10% more damage");
-            //add
-        }
-
-        else if (epic_rnd == 4)
+        else if (epic_rnd == 2)
         {
             Console.WriteLine("Blood Pact (Passive)");
             Console.WriteLine("More damage, less HP");
             Console.WriteLine("----------");
             Console.WriteLine("+25% Damage, -15% Max HP");
-            //add
+            if (!Global.E2)
+            {
+                Character.HasBloodPact = true;
+
+                character.Attack = (int)(character.Attack * 1.25f);
+                character.MaxHealth = (int)(character.MaxHealth * 0.85f);
+
+                if (character.Health > character.MaxHealth)
+                    character.Health = character.MaxHealth;
+
+                Global.E2 = true;
+            }
         }
     }
 
-    public static void legendry()
+    public static void legendry(Character player, Character character)
     {
         int legendry_rnd = new Random().Next(1, 6);
 
@@ -298,7 +306,12 @@ class Items
             Console.WriteLine("More damage, More gold");
             Console.WriteLine("----------");
             Console.WriteLine("+40% Damage, Enemies drop +20% more gold");
-            //add
+            if (!Global.L1)
+            {
+                player.Attack = (int)(player.Attack * 1.4f);
+                Action.GoldDropMultiplier += 0.2f;
+                Global.L1 = true;
+            }
         }
 
         else if (legendry_rnd == 2)
@@ -307,7 +320,16 @@ class Items
             Console.WriteLine("More gold per kill, less Max HP");
             Console.WriteLine("----------");
             Console.WriteLine("+2% gold per kill, but Max HP is reduced by 20%");
-            //add
+            if (!Global.L2)
+            {
+                Action.GoldDropMultiplier += 0.02f;
+                player.MaxHealth = (int)(player.MaxHealth * 0.8f);
+
+                if (player.Health > player.MaxHealth)
+                    player.Health = player.MaxHealth;
+
+                Global.L2 = true;
+            }
         }
 
         else if (legendry_rnd == 3)
@@ -316,7 +338,11 @@ class Items
             Console.WriteLine("Repeat Attack");
             Console.WriteLine("----------");
             Console.WriteLine("Every 3rd Attack repeats automatically");
-            //add
+            if (!Global.L3)
+            {
+                Character.HasEchoGloves = true;
+                Global.L3 = true;
+            }
         }
 
         else if (legendry_rnd == 4)
@@ -325,7 +351,21 @@ class Items
             Console.WriteLine("Sacrifice HP for Gold");
             Console.WriteLine("----------");
             Console.WriteLine("Sacrifice 50 HP for 100 Gold");
-            //add
+            if (!Global.L4)
+            {
+                Console.WriteLine("Golden Furnace activated: Sacrifice 50 HP for 100 Gold");
+                if (player.Health > 50)
+                {
+                    player.TakeDamage(50);
+                    player.Gold += 100;
+                    Console.WriteLine($"Your HP: {player.Health}, Gold: {player.Gold}");
+                }
+                else
+                {
+                    Console.WriteLine("Not enough HP to use Golden Furnace");
+                }
+                Global.L4 = true;
+            }
         }
 
         else if (legendry_rnd == 5)
@@ -334,7 +374,22 @@ class Items
             Console.WriteLine("Trade Gold for Damage");
             Console.WriteLine("----------");
             Console.WriteLine("Trade 50% of current gold for +50% damage for 2 rounds");
-            //add
+            if (!Global.L5)
+            {
+                Console.WriteLine("Soal Contract activated: Trade 50% of current gold for +50% damage for 2 rounds");
+                    if (player.Gold > 0)
+                    {
+                        int goldSacrificed = player.Gold / 2;
+                        player.Gold -= goldSacrificed;
+                        Action.Special_charge += (int)(player.Attack * 0.5f); // temporary +50% damage
+                        Console.WriteLine($"Gold sacrificed: {goldSacrificed}, Temporary damage bonus: {Action.Special_charge}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No gold to trade for Soal Contract");
+                    }
+                Global.L5 = true;
+            }
         }
     }
 }
@@ -376,6 +431,7 @@ class Action
     public static int Special_charge = 0;
     public static bool Specail_isCharged = false;
     public static int Enemy_damage = 10;
+    public static bool DodgeNextHit = false;
 
 
     public static void Text(Character player, bool Nohit)
@@ -393,11 +449,6 @@ class Action
             Console.WriteLine("-| Defend |-");
             Console.ResetColor();
 
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("-| Special |-");
-            Console.WriteLine($"Charge: {Special_charge}");
-            Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("-| Run |-");
             Console.ResetColor();
@@ -406,6 +457,7 @@ class Action
 
             if (answer == "attack")
             {
+                Character.AttackCounter++;
                 int damage = player.Attack;
 
                 while (true)
@@ -426,6 +478,12 @@ class Action
                                 {
                                     Enemy_1 -= damage;
                                 }
+
+                        if (Character.HasEchoGloves && Character.AttackCounter % 3 == 0)
+                        {
+                            Console.WriteLine("Echo attack triggered");
+                            Enemy_1 -= damage;
+                        }
 
                         Enemy_2 -= damage / 2;
                         damage = Special_charge;
@@ -471,41 +529,6 @@ class Action
                 extra_def = true;
                 break;
             }
-            else if (answer == "special")
-            {
-                if (Special_charge < 100)
-                Special_charge = 100;
-
-                if (Special_charge == 100)
-                    Specail_isCharged = true;
-
-                else
-                {
-                    Console.WriteLine("You cant use your Special");
-                    Console.WriteLine("Its not fully charged");
-                    Console.WriteLine($"Special charge = {Special_charge}");
-                    break;
-                }
-
-                if(Specail_isCharged = true)
-                {
-                    Console.WriteLine("Your Special is fully charged");
-                    Console.WriteLine("Do you wish to do your Special");
-                    Console.WriteLine("Yes or No");
-                    string answer_special = Console.ReadLine().Trim().ToLower();
-
-                    if (answer_special == "yes" || answer_special == "y")
-                    {
-                        //special
-                    }
-
-                    else if (answer_special == "no" || answer_special == "n")
-                    {
-                        Console.WriteLine("Then your Special charge will be saved");
-                        break;
-                    }
-                }
-            }
 
             else if (answer == "run")
             {
@@ -522,25 +545,31 @@ class Action
 
         Console.WriteLine("!! The skeletons strike back !!");
         Console.WriteLine($"The skeletons did -{Enemy_damage}");
-        if (extra_def == false)
-            player.TakeDamage((int)(Enemy_damage * round_enemy_mult * (player.Defense / 10 + 0.4)));
-
-        else if (extra_def == true)
+         if (DodgeNextHit)
         {
-            extra_def_round++;
-            player.TakeDamage((int)(Enemy_damage * round_enemy_mult / 2 * (player.Defense / 10 + 0.4)));
+            Console.WriteLine("You dodged the attack");
+            DodgeNextHit = false;
+            return;
+        }
 
-            if (extra_def_round == 2)
+        else
+        {  
+            if (extra_def == false)
+                player.TakeDamage((int)(Enemy_damage * round_enemy_mult * (player.Defense / 10 + 0.4)));
+
+            else if (extra_def == true)
             {
-                extra_def_round = 0;
-                extra_def = false;
-            }
+                extra_def_round++;
+                player.TakeDamage((int)(Enemy_damage * round_enemy_mult / 2 * (player.Defense / 10 + 0.4)));
+
+                if (extra_def_round == 2)
+                {
+                    extra_def_round = 0;
+                    extra_def = false;
+                }
+        }
         }
 
-        else if (Nohit = true)
-        {
-            Enemy_damage = 0;
-        }
         Console.WriteLine($"Your HP = {player.Health}");
 
         if (Enemy_1 <= 0 || Enemy_2 <= 0)
@@ -557,6 +586,7 @@ class Action
 
             Console.WriteLine($"Enemies defeated! You earned {goldEarned} gold. Total gold: {player.Gold}");
         }
+
 
         if (Enemy_1 <= 0 && Enemy_2 <= 0)
         {
@@ -577,6 +607,10 @@ class Action
 }
 
 // Fix the Action method 
-// Fix bugs that makes the code buggy
+// Fix bugs that makes the code buggy or strange
 // sort / fix / UI changes
-    
+
+// if extra time
+//      Make more items
+//      Abilitys
+//      Add more actions
