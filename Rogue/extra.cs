@@ -1,31 +1,19 @@
 using System;
 using System.Data;
 using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
+using RPGGame;
 
 static class Global
 {
-    public static bool C1 = true;
-    public static bool C2 = true;
-    public static bool C3 = true;
-    public static bool C4 = true;
-    public static bool C5 = true;
-    public static bool C6 = true;
-    public static bool C7 = true;
+    public static bool C1 = false, C2 = false, C3 = false, C4 = false, C5 = false, C6 = false, C7 = false;
 
-    public static bool R1 = true;
-    public static bool R2 = true;
-    public static bool R3 = true;
-    public static bool R4 = true;
+    public static bool R1 = false, R2 = false, R3 = false, R4 = false;
 
-    public static bool E1 = true;
-    public static bool E2 = true;
-    public static bool E3 = true;
+    public static bool E1 = false, E2 = false, E3 = false;
 
-    public static bool L1 = true;
-    public static bool L2 = true;
-    public static bool L3 = true;
-    public static bool L4 = true;
-    public static bool L5 = true;
+    public static bool L1 = false, L2 = false, L3 = false, L4 = false, L5 = false;
 
 }
 
@@ -43,7 +31,7 @@ class Loadingscreen
     }
 }
 
-class Character
+public class Character
 {
     public string Name;
     public int Health;
@@ -57,6 +45,7 @@ class Character
     public static bool HasBloodPact = false;
     public static int AttackCounter = 0;
     public static bool HasEchoGloves = false;
+    public bool HasSpikedArmor;
 
 
     public Character(string name, int health, int attack, int defense)
@@ -69,40 +58,33 @@ class Character
     }
 
     public void Heal(int amount)
-    {
+    {   
         Health += amount;
         if (Health > MaxHealth)
             Health = MaxHealth;
 
     }
 
-    public void TakeDamage(int enemy_damage)
+    public bool TakeDamage(int enemy_damage)
     {
         Health -= enemy_damage;
-        if (Health < 0)
-        {
-            Health = 0;
-        }
+        if (Health < 0) Health = 0;
 
         if (Health <= 0)
-        {
-            TryRevive();
-        }
-
-        void TryRevive()
         {
             if (HasRevive && !ReviveUsed)
             {
                 ReviveUsed = true;
                 Health = MaxHealth / 2;
                 Console.WriteLine("Phoenix Heart activated");
+                return false;
             }
-            else
-            {
-                Console.WriteLine("You died");
-                Environment.Exit(0);
-            }
+
+            Console.WriteLine("You died");
+            return true;
         }
+
+        return false;
     }
 }
 
@@ -168,7 +150,7 @@ class Items
             Console.WriteLine("Adds an extra 10% chance of hitting a critical hit");
             if (!Global.C5)
             {
-                player.crit_chanse -= 1;
+                player.crit_chanse = Math.Max(2, player.crit_chanse - 1);
                 Global.C5 = true;
             }
         }
@@ -298,7 +280,7 @@ class Items
 
     public static void legendry(Character player, Character character)
     {
-        int legendry_rnd = new Random().Next(1, 6);
+        int legendry_rnd = new Random().Next(1, 5);
 
         if (legendry_rnd == 1)
         {
@@ -367,51 +349,116 @@ class Items
                 Global.L4 = true;
             }
         }
+    }
+}
 
-        else if (legendry_rnd == 5)
+namespace RPGGame
+{
+    public class ShopItem
+    {
+        public string Name;
+        public string Description;
+        public int Price;
+        public string Rarity;
+        public Action<Character> Effect;
+        public Func<bool> AlreadyOwned;
+    }
+
+    public static class ItemLibrary
+    {
+        public static List<ShopItem> GetFullInventory()
         {
-            Console.WriteLine("Soal Contract (Power-Up)");
-            Console.WriteLine("Trade Gold for Damage");
-            Console.WriteLine("----------");
-            Console.WriteLine("Trade 50% of current gold for +50% damage for 2 rounds");
-            if (!Global.L5)
+            return new List<ShopItem>
             {
-                Console.WriteLine("Soal Contract activated: Trade 50% of current gold for +50% damage for 2 rounds");
-                    if (player.Gold > 0)
+                new ShopItem { Name = "Old Shield", Rarity = "Common", Price = 25, Description = "+1 armor", AlreadyOwned = () => Global.C1, Effect = (p) => { p.Defense += 1; Global.C1 = true; }},
+                new ShopItem { Name = "Minor Potion", Rarity = "Common", Price = 20, Description = "Restores 15 HP", AlreadyOwned = () => false, Effect = (p) => p.Heal(15)},
+                new ShopItem { Name = "Coin Purse", Rarity = "Common", Price = 30, Description = "+10% gold per kill", AlreadyOwned = () => Global.C3, Effect = (p) => { Action.GoldDropMultiplier += 0.1f; Global.C3 = true; }},
+                new ShopItem { Name = "Wooden Amulet", Rarity = "Common", Price = 25, Description = "+10 Max HP", AlreadyOwned = () => Global.C4, Effect = (p) => { p.MaxHealth += 10; Global.C4 = true; }},
+                new ShopItem { Name = "Lucky Pebble", Rarity = "Common", Price = 35, Description = "+10% crit chance", AlreadyOwned = () => Global.C5, Effect = (p) => { p.crit_chanse -= 1; Global.C5 = true; }},
+                new ShopItem { Name = "Simple Bandage", Rarity = "Common", Price = 15, Description = "Heal 10 HP", AlreadyOwned = () => false, Effect = (p) => p.Heal(10)},
+                new ShopItem { Name = "Sharpened Knife", Rarity = "Common", Price = 40, Description = "+10 Damage", AlreadyOwned = () => Global.C7, Effect = (p) => { p.Attack += 10; Global.C7 = true; }},
+
+                new ShopItem { Name = "Vampiric Blade", Rarity = "Rare", Price = 75, Description = "Heal 10% of damage dealt", AlreadyOwned = () => Global.R1, Effect = (p) => Global.R1 = true },
+                new ShopItem { Name = "Spiked Armor", Rarity = "Rare", Price = 75, Description = "Reflect 10% damage taken", AlreadyOwned = () => Global.R2, Effect = (p) => {p.HasSpikedArmor = true; Global.R2 = true; }},
+                new ShopItem { Name = "Rogue's Cloak", Rarity = "Rare", Price = 80, Description = "10% chance to avoid attacks", AlreadyOwned = () => Global.R3, Effect = (p) => Global.R3 = true },
+                new ShopItem { Name = "Bag of Fortune", Rarity = "Rare", Price = 70, Description = "+15% gold finding", AlreadyOwned = () => Global.R4, Effect = (p) => { Action.GoldDropMultiplier += 0.15f; Global.R4 = true; }},
+
+                new ShopItem { Name = "Phoenix Heart", Rarity = "Epic", Price = 150, Description = "Revive once with 50% HP", AlreadyOwned = () => Global.E1, Effect = (p) => { Character.HasRevive = true; Global.E1 = true; }},
+                new ShopItem { Name = "Blood Pact", Rarity = "Epic", Price = 120, Description = "+25% Damage, -15% Max HP", AlreadyOwned = () => Global.E2, Effect = (p) => { p.Attack = (int)(p.Attack * 1.25f); p.MaxHealth = (int)(p.MaxHealth * 0.85f); Global.E2 = true; }},
+
+                new ShopItem { Name = "Dragon Fang Sword", Rarity = "Legendary", Price = 300, Description = "+40% Dmg, +20% Gold", AlreadyOwned = () => Global.L1, Effect = (p) => { p.Attack = (int)(p.Attack * 1.4f); Action.GoldDropMultiplier += 0.2f; Global.L1 = true; }},
+                new ShopItem { Name = "Crown of Damned", Rarity = "Legendary", Price = 250, Description = "+2% Gold kill, -20% Max HP", AlreadyOwned = () => Global.L2, Effect = (p) => { Action.GoldDropMultiplier += 0.02f; p.MaxHealth = (int)(p.MaxHealth * 0.8f); Global.L2 = true; }},
+                new ShopItem { Name = "Echo Gloves", Rarity = "Legendary", Price = 350, Description = "Every 3rd attack repeats", AlreadyOwned = () => Global.L3, Effect = (p) => { Character.HasEchoGloves = true; Global.L3 = true; }},
+                new ShopItem { Name = "Golden Furnace", Rarity = "Legendary", Price = 100, Description = "Sacrifice 50 HP for 100 Gold", AlreadyOwned = () => false, Effect = (p) => { if(p.Health > 50) { p.TakeDamage(50); p.Gold += 100; }}},
+            };
+        }
+    }
+}
+namespace RPGGame
+{
+class Black
+{
+    public static void Market(Character player)
+    {
+        {
+            Random rnd = new Random();
+            // get all items from librery
+            List<ShopItem> allItems = ItemLibrary.GetFullInventory();
+            
+            // filter out items already owned (except consumables)
+            List<ShopItem> availableItems = allItems.Where(i => i.AlreadyOwned() == false).ToList();
+
+            //Pick 4 random items to showcase
+            List<ShopItem> showcase = availableItems.OrderBy(x => rnd.Next()).Take(4).ToList();
+
+            bool shopping = true;
+            while (shopping)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("--- THE BLACK MARKET ---");
+                Console.ResetColor();
+                Console.WriteLine($"Your Gold: {player.Gold} | Your HP: {player.Health}/{player.MaxHealth}\n");
+                Console.WriteLine(new string('-', 30));
+
+                for (int i = 0; i < showcase.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {showcase[i].Name} [{showcase[i].Rarity}]");
+                    Console.WriteLine($"   Cost: {showcase[i].Price} Gold");
+                    Console.WriteLine($"   Effect: {showcase[i].Description}");
+                    Console.WriteLine(new string('-', 30));
+                }
+                Console.WriteLine("0. Leave Market");
+
+                Console.Write("\nWhat would you like to buy? ");
+                string input = Console.ReadLine();
+
+                if (input == "0") shopping = false;
+                else if (int.TryParse(input, out int choice) && choice >= 1 && choice <= showcase.Count)
+                {
+                    ShopItem selected = showcase[choice - 1];
+
+                    if (player.Gold >= selected.Price)
                     {
-                        int goldSacrificed = player.Gold / 2;
-                        player.Gold -= goldSacrificed;
-                        Action.Special_charge += (int)(player.Attack * 0.5f); // temporary +50% damage
-                        Console.WriteLine($"Gold sacrificed: {goldSacrificed}, Temporary damage bonus: {Action.Special_charge}");
+                        player.Gold -= selected.Price;
+                        selected.Effect(player); // Trigger the code from the Library
+                        Console.WriteLine($"\nYou bought {selected.Name}!");
+                        showcase.RemoveAt(choice - 1); // Remove from shelf after buying
                     }
                     else
                     {
-                        Console.WriteLine("No gold to trade for Soal Contract");
+                        Console.WriteLine("\nYou don't have enough gold for that!");
                     }
-                Global.L5 = true;
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                }
+                Action.Text(player);
             }
         }
     }
 }
-
-class Black
-{
-    public static void Market()
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("Market");
-        Console.ResetColor();
-        Console.ReadLine();
-
-        Console.WriteLine("Welcome to the Market");
-        Console.WriteLine("Here you can buy goods like items that can aid you in battle");
-        Console.WriteLine();
-        Console.WriteLine("Or upgrades like:");
-        Console.WriteLine("Weapon upgrades");
-        Console.WriteLine("Health upgrades");
-        Console.WriteLine("And so on");
-    }
 }
+
 
 class Action
 {
@@ -428,186 +475,170 @@ class Action
     private const int BaseGoldPerKill = 10; //base gold per kill
     private const float GoldScalingPerRound = 0.5f; //additional gold per round
     private const float GoldScalingCap = 35f; //cap for scaling
-    public static int Special_charge = 0;
-    public static bool Specail_isCharged = false;
     public static int Enemy_damage = 10;
     public static bool DodgeNextHit = false;
 
+    public static bool Defending;
+    private static int DefendRounds;
 
-    public static void Text(Character player, bool Nohit)
+
+     public static void Text(Character player)
     {
-        while (true)
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("=== Combat ===");
+        Console.ResetColor();
+        Console.WriteLine($"HP: {player.Health}/{player.MaxHealth} | Round: {round}\n");
+        Console.WriteLine("Attack | Defend | Run");
+        string input = Console.ReadLine().Trim().ToLower();
+
+        if (input == "attack")
         {
-            Console.WriteLine("---- Choose Your Action ----");
-            Console.WriteLine();
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("-| Attack |-");
-            Console.ResetColor();
-
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine("-| Defend |-");
-            Console.ResetColor();
-
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("-| Run |-");
-            Console.ResetColor();
-            Console.WriteLine();
-            string answer = Console.ReadLine().Trim().ToLower();
-
-            if (answer == "attack")
-            {
-                Character.AttackCounter++;
-                int damage = player.Attack;
-
-                while (true)
-                {
-                    Console.WriteLine("Which skeleton do you attack?");
-                    Console.WriteLine("Skeleton 1 or Skeleton 2");
-                    string attack_answer = Console.ReadLine().Trim().ToLower();
-
-                    if (attack_answer == "skeleton 1" || attack_answer == "1")
-                    {
-                        int crit = new Random().Next(1, player.crit_chanse);
-                            if (crit == 1)
-                                {
-                                    Console.WriteLine("! Crit !");
-                                    Enemy_1 -= damage * 3;
-                                }
-                            else
-                                {
-                                    Enemy_1 -= damage;
-                                }
-
-                        if (Character.HasEchoGloves && Character.AttackCounter % 3 == 0)
-                        {
-                            Console.WriteLine("Echo attack triggered");
-                            Enemy_1 -= damage;
-                        }
-
-                        Enemy_2 -= damage / 2;
-                        damage = Special_charge;
-
-                        Console.WriteLine($"You attacked Skeleton 1 for {damage} damage.");
-                        Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
-                        Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
-                        break;
-                    }
-                    
-                    else if (attack_answer == "skeleton 2" || attack_answer == "2")
-                    {
-                        int crit = new Random().Next(1, player.crit_chanse);
-                            if (crit == 1)
-                                {
-                                    Console.WriteLine("! Crit !");
-                                    Enemy_2 -= damage * 3;
-                                }
-                            else
-                                {
-                                    Enemy_2 -= damage;
-                                }
-
-                        Enemy_1 -= damage / 2;
-                        damage = Special_charge;
-
-                        Console.WriteLine($"You attacked Skeleton 2 for {damage} damage.");
-                        Console.WriteLine($"Skeleton 2 HP = {Enemy_2}");
-                        Console.WriteLine($"Skeleton 1 HP = {Enemy_1}");
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid Answer! Write 'Skeleton 1' or 'Skeleton 2'");
-                    }
-                }
-                break;
-            }
-            else if (answer == "defend")
-            {
-                Console.WriteLine("You activated your Defense stance");
-                Console.WriteLine("Opponents deal half damage for 2 rounds");
-                extra_def = true;
-                break;
-            }
-
-            else if (answer == "run")
-            {
-                Console.WriteLine("You ran out of the cave, you coward");
-                Console.ReadLine();
-                Environment.Exit(0);
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Invalid input. Try again.");
-            }
+            Character.AttackCounter++;
+            Attack(player);
+        }
+        else if (input == "defend")
+        {
+            Defending = true;
+            DefendRounds = 2;
+            Console.WriteLine("Defense stance activated");
+            EnemyTurn(player);
+        }
+        else if (input == "run")
+        {
+            Console.WriteLine("You fled the cave");
+            return;
+        }
+        else
+        {
+            Console.WriteLine("Invalid input");
+            return;
         }
 
-        Console.WriteLine("!! The skeletons strike back !!");
-        Console.WriteLine($"The skeletons did -{Enemy_damage}");
-         if (DodgeNextHit)
+        if (Enemy_1 <= 0 && Enemy_2 <= 0)
         {
-            Console.WriteLine("You dodged the attack");
+            CheckRoundEnd(player);
+            return;
+        }
+    }
+
+    static void Attack(Character player)
+    {
+        Console.Clear();
+        Console.WriteLine("Choose target: Skeleton 1 or 2");
+        string target = Console.ReadLine();
+
+        int damage = player.Attack;
+        int critMax = Math.Max(2, player.crit_chanse);
+        if (new Random().Next(1, critMax) == 1)
+        {
+            Console.WriteLine("! Critical Hit !");
+            damage *= 3;
+        }
+
+        if (target == "1")
+        {
+            Enemy_1 -= damage;
+            Enemy_2 -= damage / 2;
+        }
+        
+        else
+        {
+            Enemy_2 -= damage;
+            Enemy_1 -= damage / 2;
+        }
+
+        if (Character.HasEchoGloves && Character.AttackCounter % 3 == 0)
+        {
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.WriteLine("Echo attack triggered!");
+            Console.ResetColor();
+            if (target == "1") Enemy_1 -= player.Attack;
+            else Enemy_2 -= player.Attack;
+        }
+
+        Console.WriteLine($"Skeleton 1 HP: {Enemy_1}");
+        Console.WriteLine($"Skeleton 2 HP: {Enemy_2}");
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadLine();
+
+        EnemyTurn(player);
+    }
+
+    static void EnemyTurn(Character player)
+    {
+        if (Enemy_1 <= 0 && Enemy_2 <= 0) return;
+
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("=== Enemy Turn ===");
+        Console.ResetColor();
+
+        if (DodgeNextHit)
+        {
+            Console.WriteLine("You dodged the attack!");
             DodgeNextHit = false;
             return;
         }
 
-        else
-        {  
-            if (extra_def == false)
-                player.TakeDamage((int)(Enemy_damage * round_enemy_mult * (player.Defense / 10 + 0.4)));
+        float reduction = 1f - player.Defense * 0.05f;
+        if (reduction < 0.2f) reduction = 0.2f;
 
-            else if (extra_def == true)
-            {
-                extra_def_round++;
-                player.TakeDamage((int)(Enemy_damage * round_enemy_mult / 2 * (player.Defense / 10 + 0.4)));
+        int dmg = (int)(Enemy_damage * reduction);
+        if (Defending) dmg /= 2;
 
-                if (extra_def_round == 2)
-                {
-                    extra_def_round = 0;
-                    extra_def = false;
-                }
-        }
-        }
+        bool dead = player.TakeDamage(dmg);
+        Console.WriteLine($"You took {dmg} damage");
+        Console.WriteLine($"Your health is {player.Health}");
 
-        Console.WriteLine($"Your HP = {player.Health}");
-
-        if (Enemy_1 <= 0 || Enemy_2 <= 0)
+        if (Defending)
         {
-            float scalingGold = GoldScalingPerRound * (round - 1); 
-            if (scalingGold > GoldScalingCap) 
-                scalingGold = GoldScalingCap; 
-
-            float goldPreModifier = BaseGoldPerKill + scalingGold + ExtraGoldPerKill; 
-
-            int goldEarned = (int)Math.Floor(goldPreModifier * GoldDropMultiplier); 
-
-            player.Gold += goldEarned;
-
-            Console.WriteLine($"Enemies defeated! You earned {goldEarned} gold. Total gold: {player.Gold}");
+            DefendRounds--;
+            if (DefendRounds == 0) Defending = false;
         }
 
+        if (dead)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Game Over!");
+            Console.ResetColor();
+            Console.ReadKey();
+            return;
+        }
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadLine();
+        CheckRoundEnd(player); 
+        return;
+    }
 
+    static void CheckRoundEnd(Character player)
+    {
         if (Enemy_1 <= 0 && Enemy_2 <= 0)
         {
-            Console.WriteLine("!!! Round cleared !!!");
-            Console.WriteLine("Moving on to the next room");
-            round++;
-            Black.Market();
-        }
+        float scaling = GoldScalingPerRound * (round - 1);
+        if (scaling > GoldScalingCap) scaling = GoldScalingCap;
 
-        if (Enemy_damage < 10)
-            Enemy_damage = 10;
+        int gold = (int)((BaseGoldPerKill + scaling) * GoldDropMultiplier);
+        player.Gold += gold;
+
+        Console.WriteLine($"Round cleared. Gold +{gold}");
+
+        round++;
+        Enemy_1 = 100 + round * 10;
+        Enemy_2 = 100 + round * 10;
 
         float scale = 1f + (round - 1) * 0.15f;
         if (scale > 4f) scale = 4f;
-
-        Enemy_damage = (int)(Enemy_damage * scale);
+        Enemy_damage = (int)(10 * scale);
+        RPGGame.Black.Market(player);
+        }
+        else
+        {
+            Text(player);
+        }
     }
-}
 
-// Fix the Action method 
-// Fix bugs that makes the code buggy or strange
+}
 // sort / fix / UI changes
 
 // if extra time
